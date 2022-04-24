@@ -1,0 +1,79 @@
+<script src="../Libraries/angularJS/angular.min.js"></script>
+<script src="../Libraries/Jquery/jquery.min.js"></script>
+
+
+<div ng-app="DocApp" ng-controller="DocCtrl" data-ng-init="DocCtrlInitOnLoad()">
+	{{TestData}}
+	<table class="table table-hover table-striped table-condensed" id="main-ListTable" style="width:100%">				
+				<thead>
+					<tr>					
+						<th style='width:100px'>ID</th>						
+						<th style='width:400px'>Name</th>																																												
+					</tr>
+				</thead>
+										        		        
+				<tbody>									
+					<tr ng-repeat="it in dataList" ng-click="OnItemClick(it, $index)" >	
+						<td >{{it.ID}}</td>
+						<td style="text-align:center">{{it.Title}}</td>												
+					</tr>				 	  
+				</tbody>									
+			</table>
+
+</div>
+
+<script>
+
+//alert(1);
+var SiteURL  = "";
+
+var DocApp = angular.module('DocApp', []);
+
+DocApp.controller('DocCtrl', function($scope, $interval,$location, $timeout) 
+{		
+	$scope.DocCtrlInitOnLoad = function()    
+    {	
+    	filter = "&$select=ID,Title,ClientRating,AssessmentDate,Status,AuditLog,ReviewDate";	
+    	filter += "&$filter=Status eq 'Active' " ;	        
+    	$scope.dataList = GetListByFilter("CounterpartyAandS", filter);         
+    }
+
+});
+
+function GetListByFilter(ListName, Filter )
+{
+	var res;
+			
+	var URL = SiteURL + "_vti_bin/client.svc/web/lists/getByTitle('" + ListName +"')/Items?$top=5000";
+	if(	Filter )
+	{
+		URL += Filter ;
+	}
+
+	  $.ajax({
+        url: URL,
+        type: "GET",
+		async: false,
+        headers: {
+            "accept": "application/json;odata=verbose",
+        },
+        success: function(data) 
+        {		
+			if(data.d.results)
+			{		
+				res = data.d.results;				
+			}				
+														
+        },
+        error: function (error) {
+            alert("Error : " + JSON.stringify(error));			
+        }
+    });
+	
+	return res;
+
+}
+
+
+
+</script>
